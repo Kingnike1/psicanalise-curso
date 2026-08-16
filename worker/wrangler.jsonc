@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "instituto-ade-lab",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-08-16",
+  "ai": {
+    "binding": "AI"
+  }
+}
