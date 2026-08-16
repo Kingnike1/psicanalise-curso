@@ -1,23 +1,22 @@
 # Instituto ADE — Curso Livre de Psicanálise
 
-Plataforma web de estudos criada para organizar uma formação livre em Psicanálise com conteúdo extenso, progressão por módulos, avaliações teóricas, videoaulas incorporadas, biblioteca, perfil acadêmico e Laboratório de simulação com IA.
+Plataforma web de estudos criada para organizar uma formação livre em Psicanálise com conteúdo progressivo, avaliações teóricas, videoaulas incorporadas, biblioteca, perfil acadêmico e Laboratório de simulação com IA.
 
 > **Importante:** este projeto é um ambiente educacional. O certificado do sistema representa conclusão do programa livre de estudos e não equivale a diploma de graduação, título de Psicólogo, registro profissional ou habilitação clínica automática.
 
-## O que existe no sistema
+## Recursos principais
 
-- Aba **Principal** com apresentação da proposta, motivações e benefícios.
+- Aba **Principal** com apresentação, motivações, benefícios e carrosséis verticais.
 - **Início** com continuidade de estudo e mapa da formação.
-- **Curso** organizado em ciclos, módulos e aulas.
-- Conteúdo didático aprofundado em `content.js` e arquivos de ciclo.
-- **Videoaulas incorporadas** dentro das aulas.
-- Avaliações teóricas com nota mínima de 70%.
+- **Curso** dividido em 20 módulos e 120 aulas.
+- Conteúdo didático estruturado por conceitos, objetivos, exemplos, leitura crítica e atividades.
+- **Videoaulas incorporadas** diretamente nas aulas.
+- Avaliações teóricas com critério de aprovação de 70%.
 - **Laboratório Clínico com IA**, liberado progressivamente após os módulos.
 - **Biblioteca** de autores, conceitos, obras e audiovisual.
-- **Perfil do estudante** com foto, progresso, notas, práticas e objetivos pessoais.
+- **Perfil do estudante** com foto, progresso, notas, práticas, conquistas e objetivo pessoal.
 - Certificado de conclusão ao final do percurso.
-- Layout responsivo para celular e computador.
-- Tema escuro e identidade visual própria do Instituto ADE.
+- Tema escuro, identidade visual própria e layout responsivo para celular e computador.
 
 ## Estrutura do repositório
 
@@ -30,135 +29,170 @@ psicanalise-curso/
 │   ├── CONTEUDO.md
 │   └── DEPLOY-CLOUDFLARE.md
 ├── site/
+│   ├── README.md
 │   ├── index.html
-│   ├── app.js
 │   ├── content.js
-│   ├── content/
-│   │   ├── cycle-1.js
-│   │   ├── cycle-2.js
-│   │   ├── cycle-3.js
-│   │   ├── cycle-4.js
-│   │   ├── cycle-5.js
-│   │   └── finalize.js
 │   ├── videos.js
-│   ├── styles.css
+│   ├── vercel.json
 │   ├── ade-logo.png
 │   ├── ade-background.jpg
-│   └── vercel.json
+│   ├── content/
+│   │   ├── modules.js
+│   │   └── finalize.js
+│   ├── app/
+│   │   ├── core.js
+│   │   ├── pages.js
+│   │   ├── study-lab.js
+│   │   ├── library-profile.js
+│   │   └── runtime.js
+│   └── styles/
+│       ├── base.css
+│       └── enhancements.css
 └── worker/
     ├── package.json
     ├── wrangler.jsonc
     └── src/
-        └── worker.js
+        ├── worker.js
+        └── blueprints.js
 ```
 
-## Como o sistema foi construído
+# Como o sistema foi construído
 
-### 1. Primeira versão
+## 1. Base estática
 
-A aplicação começou como um site estático simples para concentrar o conteúdo de Psicanálise em um único ambiente. A escolha inicial por HTML, CSS e JavaScript puro permitiu colocar o projeto online rapidamente, sem banco de dados ou servidor próprio.
+O Instituto ADE começou como uma aplicação estática em HTML, CSS e JavaScript puro. Essa escolha permite hospedar o site com baixo custo e sem uma etapa de compilação obrigatória.
 
-### 2. Currículo
+O arquivo `site/index.html` é o ponto de entrada. Ele carrega os arquivos de conteúdo, catálogo audiovisual, aplicação e estilos na ordem correta.
 
-O conteúdo inicial era pequeno demais para o objetivo da formação. A estrutura foi então ampliada para um currículo de alta densidade. O conteúdo foi separado da interface e organizado em dados estruturados, permitindo manter aulas, conceitos, tarefas e provas sem acoplar tudo ao layout.
+## 2. Separação entre conteúdo e interface
 
-No repositório, o conteúdo foi dividido por ciclos em `site/content/` para facilitar manutenção e revisão. `site/content.js` contém a base e o construtor das seções didáticas; os arquivos `cycle-*.js` registram os módulos; `finalize.js` conclui a montagem do objeto `COURSE` usado pela interface.
+O conteúdo do curso não fica escrito diretamente nos componentes visuais. A base acadêmica é organizada em `site/content.js` e `site/content/modules.js`.
 
-### 3. Sistema de progresso
+`content.js` define:
 
-O sistema registra no `localStorage` quais aulas foram concluídas e quais provas foram aprovadas. A interface calcula automaticamente progresso geral e progresso por módulo.
+- metadados do curso;
+- bibliografia;
+- glossário;
+- gerador das seções didáticas;
+- funções que completam cada aula com objetivos, reflexão, atividades e provas.
 
-Não existe servidor de usuários na arquitetura atual. Isso deixa a aplicação simples e gratuita, mas significa que o progresso fica no navegador onde foi realizado.
+`content/modules.js` registra os 20 módulos e suas 120 aulas. `content/finalize.js` conclui a montagem do objeto global `COURSE` utilizado pelo restante da aplicação.
 
-### 4. Avaliações
+Essa divisão permite alterar a interface sem reescrever o currículo e ampliar o currículo sem reconstruir a navegação.
 
-Cada módulo possui uma avaliação teórica. O sistema calcula a nota no navegador e libera as etapas seguintes quando o estudante atinge o critério definido.
+## 3. Aplicação dividida por responsabilidade
 
-A intenção pedagógica é combinar leitura passiva com recuperação ativa do conteúdo.
+A versão inicial possuía um único JavaScript grande. No repositório ele foi organizado em arquivos menores:
 
-### 5. Laboratório Clínico com IA
+### `site/app/core.js`
+Estado global, preferências, progresso, ciclos do curso, dados da Aba Principal e estrutura comum da navegação.
 
-O Laboratório começou como casos fictícios estáticos e foi transformado em uma conversa generativa.
+### `site/app/pages.js`
+Aba Principal, página Início e visualização do currículo.
 
-O navegador envia a conversa para um Cloudflare Worker. Esse Worker usa **Cloudflare Workers AI** através do binding `AI`.
+### `site/app/study-lab.js`
+Leitura das aulas, provas teóricas e interface do Laboratório Clínico.
 
-Há duas funções conceitualmente separadas:
+### `site/app/library-profile.js`
+Biblioteca, Perfil do estudante, certificado e funções auxiliares do Laboratório.
 
-- **Modo Paciente:** a IA interpreta somente o personagem fictício e não dá respostas ao estudante.
-- **Modo Avaliador:** depois que a sessão termina, a IA analisa a conversa e produz uma devolutiva pedagógica.
+### `site/app/runtime.js`
+Renderização, eventos, mudança de páginas, conclusão de aulas, correção das provas, upload da foto de perfil e chamadas ao Worker de IA.
 
-Os casos são graduados de acordo com o avanço no curso. A IA é instruída a não exigir conhecimentos de módulos que ainda não foram estudados.
+## 4. Progresso e dados locais
 
-### 6. Videoaulas
+A aplicação utiliza `localStorage` para armazenar:
 
-Os antigos links que apenas faziam pesquisas no YouTube foram substituídos por um catálogo audiovisual em `videos.js`. As aulas exibem um player incorporado diretamente no sistema.
+- aulas concluídas;
+- módulos aprovados;
+- notas das avaliações;
+- sessões do Laboratório;
+- endereço do Worker de IA;
+- preferências de leitura;
+- foto e informações editáveis do perfil.
 
-O projeto usa `youtube-nocookie.com/embed/...`, permitindo assistir ao vídeo sem abandonar a página da aula.
+Essa arquitetura evita banco de dados no estágio atual. A consequência é que os dados ficam vinculados ao navegador/dispositivo e não são sincronizados automaticamente entre celular e computador.
 
-### 7. Redesign visual
+## 5. Avaliações
 
-A interface foi reconstruída para reduzir o aspecto de dashboard genérico e ficar mais próxima de uma biblioteca acadêmica contemporânea.
+Cada módulo segue a progressão:
 
-Foram criados:
+```text
+Aulas → Prova teórica → 70% ou mais → Laboratório com IA
+```
 
-- navegação lateral compacta;
-- identidade visual escura com detalhes dourados;
-- aba Principal de apresentação;
-- carrosséis de motivação e benefícios;
-- curso organizado em ciclos;
-- experiência editorial de leitura;
-- laboratório visualmente parecido com uma sala de atendimento;
-- biblioteca organizada por tipo de recurso;
-- logo e imagem de fundo próprias.
+A prova objetiva é calculada no navegador. Ao atingir o critério definido, o módulo libera a experiência prática.
 
-### 8. Perfil
+## 6. Laboratório Clínico com IA
 
-O círculo inferior da navegação passou a abrir uma página de perfil. A área reúne dados acadêmicos, avaliações, progresso e foto de perfil.
+O Laboratório não é executado diretamente no navegador. O frontend chama um **Cloudflare Worker** em `worker/src/worker.js`.
 
-A imagem escolhida pelo usuário é convertida no navegador e armazenada localmente.
+O Worker utiliza o binding `AI` do **Cloudflare Workers AI**. Assim, nenhuma chave secreta precisa ser colocada no JavaScript público do site.
 
-### 9. Acesso
+O fluxo possui dois papéis diferentes:
 
-Versões anteriores possuíam uma tela de senha. Ela foi removida na versão atual para permitir que o link abra diretamente na Aba Principal.
+### Modo Paciente
+A IA interpreta exclusivamente um personagem fictício. Ela pode apresentar resistência, silêncio, contradições e material transferencial de acordo com a dificuldade do módulo, sem revelar os conceitos que estão sendo avaliados.
 
-## Arquivos principais
+### Modo Avaliador
+Ao encerrar a conversa, a IA recebe a transcrição e devolve nota, competências observadas e feedback pedagógico.
 
-### `site/index.html`
-Documento HTML inicial. Carrega os recursos e fornece o elemento raiz em que a aplicação é renderizada.
+`worker/src/blueprints.js` contém o desenho pedagógico das 20 etapas práticas. A dificuldade aumenta gradualmente de fundamental para integração clínica.
 
-### `site/app.js`
-Controlador principal da aplicação. Responsável por navegação, renderização das páginas, progresso, provas, perfil, laboratório, armazenamento local e certificado.
+## 7. Videoaulas
 
-### `site/content.js` + `site/content/`
-Base de conteúdo pedagógico e arquivos por ciclo. Contêm módulos, aulas, conceitos, objetivos, textos, exercícios, avaliações, biblioteca e demais dados acadêmicos.
+`site/videos.js` contém o catálogo audiovisual. Em vez de enviar o estudante para uma pesquisa externa, a aplicação incorpora os vídeos com `youtube-nocookie.com/embed/...` dentro da própria aula.
 
-### `site/videos.js`
-Catálogo de recursos audiovisuais usados dentro das aulas.
+O player continua oferecendo os controles nativos de reprodução, volume e tela cheia.
 
-### `site/styles.css`
-Todo o design do sistema, incluindo responsividade.
+## 8. Evolução visual
 
-### `worker/src/worker.js`
-Backend do Laboratório. Recebe as mensagens do navegador e chama o modelo de IA configurado no Cloudflare Workers AI.
+O sistema passou por várias iterações:
 
-## Rodar localmente
+- redesign escuro/editorial;
+- organização do curso em ciclos;
+- Aba Principal com carrosséis verticais;
+- imagem de fundo discreta;
+- melhoria de tipografia e contraste;
+- aumento dos elementos nas abas secundárias;
+- logo circular do Instituto ADE;
+- Perfil acessível pelo círculo inferior esquerdo;
+- remoção da antiga tela de senha.
 
-Como o site é estático, você pode usar qualquer servidor HTTP simples.
+A intenção visual é aproximar a experiência de uma biblioteca acadêmica contemporânea, evitando uma aparência genérica de dashboard.
+
+## 9. Perfil
+
+O perfil reúne:
+
+- nome do estudante;
+- foto editável;
+- progresso geral;
+- módulos e aulas concluídos;
+- notas teóricas;
+- resultados práticos;
+- conquistas;
+- curso em andamento;
+- objetivo pessoal de estudo.
+
+A foto é redimensionada no navegador usando `canvas` antes de ser armazenada localmente.
+
+# Executar localmente
+
+O site não precisa de Node.js para funcionar.
 
 ```bash
 cd site
 python -m http.server 8080
 ```
 
-Depois abra:
+Abra:
 
 ```text
 http://localhost:8080
 ```
 
-Evite abrir apenas `index.html` por `file://`, pois algumas funções de navegador e integrações podem ter comportamento diferente fora de HTTP.
-
-## Worker local/remoto
+# Executar o Worker
 
 ```bash
 cd worker
@@ -172,14 +206,27 @@ Para publicar:
 npm run deploy
 ```
 
-É necessária uma conta Cloudflare com Workers AI disponível.
+O binding do Workers AI deve se chamar exatamente `AI`, conforme `worker/wrangler.jsonc`.
 
-## Documentação adicional
+# Deploy
+
+Veja o guia detalhado em [docs/DEPLOY-CLOUDFLARE.md](docs/DEPLOY-CLOUDFLARE.md).
+
+# Documentação
 
 - [Arquitetura](docs/ARQUITETURA.md)
 - [Organização pedagógica](docs/CONTEUDO.md)
 - [Deploy na Cloudflare](docs/DEPLOY-CLOUDFLARE.md)
 
-## Situação atual
+# Limitações atuais e evolução futura
 
-A aplicação está funcional como plataforma pessoal de estudos. Algumas decisões atuais — principalmente armazenamento somente no navegador — foram escolhidas para manter o sistema simples. Caso o projeto passe a atender vários estudantes, a próxima evolução arquitetural recomendada é adicionar autenticação, banco de dados e sincronização de progresso no servidor.
+A arquitetura atual foi otimizada para um projeto pessoal e hospedagem simples. Para transformar o Instituto ADE em uma plataforma multiusuário, as próximas evoluções recomendadas são:
+
+1. autenticação real de usuários;
+2. banco de dados;
+3. sincronização de progresso entre dispositivos;
+4. painel administrativo para conteúdo;
+5. armazenamento de imagens fora do `localStorage`;
+6. histórico de avaliações no servidor;
+7. controle de versões do currículo;
+8. testes automatizados de frontend e Worker.
